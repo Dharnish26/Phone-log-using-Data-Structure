@@ -1,0 +1,165 @@
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <string.h>
+
+#include <stdbool.h>
+
+
+
+#define ALPHABET_SIZE 26
+
+
+
+// Trie Node
+
+struct TrieNode {
+
+    struct TrieNode* children[ALPHABET_SIZE];
+
+    bool is_end_of_word;
+
+    int duration;
+
+};
+
+
+
+// Function to create a new TrieNode
+
+struct TrieNode* createNode() {
+
+    struct TrieNode* newNode = (struct TrieNode*)malloc(sizeof(struct TrieNode));
+
+    newNode->is_end_of_word = false;
+
+    newNode->duration = 0;
+
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+
+        newNode->children[i] = NULL;
+
+    }
+
+    return newNode;
+
+}
+
+
+
+// Function to insert a word into the trie
+
+void insert(struct TrieNode* root, char* word, int duration) {
+
+    struct TrieNode* current = root;
+
+    for (int i = 0; word[i] != '\0'; i++) {
+
+        int index = word[i] - 'a';
+
+        if (!current->children[index]) {
+
+            current->children[index] = createNode();
+
+        }
+
+        current = current->children[index];
+
+    }
+
+    current->is_end_of_word = true;
+
+    current->duration += duration;
+
+}
+
+
+
+// Function to search for a word in the trie and return its total duration
+
+int search(struct TrieNode* root, char* word) {
+
+    struct TrieNode* current = root;
+
+    for (int i = 0; word[i] != '\0'; i++) {
+
+        int index = word[i] - 'a';
+
+        if (!current->children[index]) {
+
+            return 0;
+
+        }
+
+        current = current->children[index];
+
+    }
+
+    return (current != NULL && current->is_end_of_word) ? current->duration : 0;
+
+}
+
+
+
+// Function to display all calls in the trie
+
+void displayAllCalls(struct TrieNode* node, char* prefix, int prefixLength) {
+
+    if (node->is_end_of_word) {
+
+        prefix[prefixLength] = '\0';
+
+        printf("%s: %d\n", prefix, node->duration);
+
+    }
+
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+
+        if (node->children[i] != NULL) {
+
+            prefix[prefixLength] = 'a' + i;
+
+            displayAllCalls(node->children[i], prefix, prefixLength + 1);
+
+        }
+
+    }
+
+}
+
+
+
+int main() {
+
+    struct TrieNode* root = createNode();
+
+
+
+    // Adding some calls
+
+    insert(root, "alice", 30);
+
+    insert(root, "bob", 20);
+
+    insert(root, "alice", 15);
+
+
+
+    // Getting total duration for a contact
+
+    printf("Total duration for Alice: %d\n", search(root, "alice")); // Output: Total duration for Alice: 45
+
+
+
+    // Displaying all calls
+
+    char prefix[100];
+
+    displayAllCalls(root, prefix, 0);
+
+
+
+    return 0;
+
+}
